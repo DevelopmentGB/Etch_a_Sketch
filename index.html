@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+    <head><title>Etch-a-Sketch</title></head>
+
+<body>
+
+    <div id = "gridID">
+    </div>
+
+</body>
+
+<style>
+
+body {
+    display: flex;
+    position: fixed;
+    top: 25%;
+    left: 15%;
+    right: 15%;
+    justify-content: center;
+    justify-items: center;
+}
+
+#gridID {
+    display: flex;
+    flex-flow: row wrap;
+    border: 1px solid black;
+    background-color: purple;
+    width: 450px;
+    height: 450px;
+
+}
+
+#gridChildID {
+    background-color: white;
+}
+
+</style>
+
+<script>
+
+let grid = document.getElementById("gridID");
+let gridChild = document.createElement("div");
+let gridChildClassSelector = document.getElementsByClassName("childCellClass");
+let cellCount;
+let cellSize;
+
+
+
+getCellAmount();
+adjustChildCells();
+addChildren();
+
+
+
+function getCellAmount() {
+    cellCount = prompt("Enter size of sketchpad. 16 would equal 16x16 pad.", "16");
+    cellCount *= cellCount;
+    return cellCount;
+    
+}
+
+function adjustChildCells() {
+    cellSize = (450 / Math.sqrt(cellCount)) + "px";
+    gridChild.setAttribute("id", "gridChildID");
+    gridChild.setAttribute("class", "childCellClass");
+    gridChild.style.width = cellSize;
+    gridChild.style.height = cellSize;
+}
+
+function addChildren() {
+    for (i = 0; i < cellCount; i++) {
+        
+        grid.appendChild(gridChild.cloneNode(true));
+        
+
+        gridChildClassSelector[i].addEventListener('mouseover', fillColor);
+        
+
+    }
+}
+
+function fillColor() {
+    for (i = 0; i < gridChildClassSelector.length; i++) {
+        this.style.backgroundColor = "black";
+    }
+}
+
+
+
+
+
+
+
+</script>
+
+</html>
