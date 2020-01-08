@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head><title>Etch-a-Sketch</title></head>
+
+<body>
+
+    <button id = "resetButton">
+        Reset Sketchpad
+    </button>
+
+    <div id = "gridID"></div>
+
+    <div id = "toolboxID"></div>
+
+</body>
+
+<style>
+
+#resetButton {
+    display: flex;
+    position: fixed;
+    top: 10%;
+}
+
+body {
+    display: flex;
+    position: fixed;
+    top: 15%;
+    left: 15%;
+    right: 15%;
+    justify-content: center;
+}
+
+#gridID {
+    display: flex;
+    flex-flow: row wrap;
+    border: 1px solid #a6a6a6;
+    background-color: #ffffff;  /* provides canvas for opacity to show correctly */
+    width: 450px;
+    height: 450px;
+
+}
+
+#gridChildID {
+    background-color: #ffffff;
+}
+
+#toolboxID {
+    display: flex;
+    flex-flow: row wrap;
+    background-color: #ffffff;
+    width: 200px;
+    height: 450px;
+    margin-left: 5px;
+}
+
+@keyframes selectedColor {
+    from {border: 4px solid #ffffff;}
+    to {border: 4px solid #a6a6a6;}
+}
+
+
+</style>
+
+<script>
+
+let grid = document.getElementById("gridID");
+let gridChild = document.createElement("div");
+let gridChildClassSelector = document.getElementsByClassName("childCellClass");
+let cellCount;
+let cellSize;
+let toolbox = document.getElementById('toolboxID');
+let toolboxCell = document.createElement("div");
+let totalToolCells = 8;
+let toolboxCellClassSelector = document.getElementsByClassName('toolboxCellClass');
+let toolboxCellWidth = (200 / 2) - 10;
+let toolboxCellHeight = (450 / 4) - 10;
+let buttonReset = document.getElementById("resetButton");
+let resetButtonToggled = false;
+let cellCountPrevious;
+let canFill = 'false';
+let gradient = 'false';
+let colorPicker = '#000000';
+let highlightedColor = grid;
+let gradientColor = '#000000';
+
+
+getCellAmount();
+adjustChildCells();
+addChildren();
+adjustToolbox();
+populateToolbox();
+
+
+
+function getCellAmount() {
+    cellCountPrevious = cellCount;
+    cellCount = prompt("Enter size of sketchpad. 16 would equal 16x16 pad.", "16");
+    cellCount *= cellCount;
+    return cellCount;
+    
+}
+
+function adjustChildCells() {
+    cellSize = (450 / Math.sqrt(cellCount)) + "px";
+    gridChild.setAttribute("id", "gridChildID");
+    gridChild.setAttribute("class", "childCellClass");
+    gridChild.style.width = cellSize;
+    gridChild.style.height = cellSize;
+}
+
+function addChildren() {
+    for (i = 0; i < cellCount; i++) {
+        
+        grid.appendChild(gridChild.cloneNode(true));
+
+        gridChildClassSelector[i].style.backgroundColor = 'black';
+        gridChildClassSelector[i].style.opacity = 0;
+        gridChildClassSelector[i].addEventListener('mousedown', fillStart);
+        gridChildClassSelector[i].addEventListener('mouseup', fillEnd);
+        gridChildClassSelector[i].addEventListener('mouseover', fillColor);
+
+    }
+}
+
+function removeChildren() {
+    while (grid.hasChildNodes()) {
+        grid.removeChild(grid.lastChild);
+    }
+}
+
+function fillStart() {
+    event.preventDefault();
+    canFill = 'true';
+        if (canFill == 'true' && gradient == 'true' && this.style.backgroundColor == 'rgb(255, 255, 255)') {
+        this.style.opacity = 0;
+        this.style.backgroundColor = colorPicker;
+        if (this.style.opacity <= 0.65) {
+            this.style.opacity = parseFloat(this.style.opacity) + 0.1;
+            }
+        } else if (gradient == 'true') {
+            this.style.backgroundColor = colorPicker;
+            if (this.style.opacity <= 0.65) {
+                this.style.opacity = parseFloat(this.style.opacity) + 0.1;
+            }
+        } else if (canFill == 'true') {
+            this.style.backgroundColor = colorPicker;
+            this.style.opacity = 1;
+        }
+}
+
+function fillEnd() {
+    canFill = 'false';
+}
+
+function fillColor() {
+        if (canFill == 'true' && gradient == 'true' && this.style.backgroundColor == 'rgb(255, 255, 255)') {
+        this.style.opacity = 0;
+        this.style.backgroundColor = colorPicker;
+        if (this.style.opacity <= 0.65) {
+            this.style.opacity = parseFloat(this.style.opacity) + 0.1;
+        }
+        } else if (canFill == 'true' && gradient == 'true') {
+            this.style.backgroundColor = colorPicker;
+            if (this.style.opacity <= 0.65) {
+                this.style.opacity = parseFloat(this.style.opacity) + 0.1;
+            }
+        } else if (canFill == 'true') {
+            this.style.backgroundColor = colorPicker;
+            this.style.opacity = 1;
+        }
+}
+
+function adjustToolbox() {
+    toolboxCell.setAttribute('class','toolboxCellClass');
+    toolboxCell.style.width = toolboxCellWidth + 'px';
+    toolboxCell.style.height = toolboxCellHeight + 'px';
+}
+
+function populateToolbox() {
+    for (k = 0; k < totalToolCells; k++) {
+        toolbox.appendChild(toolboxCell.cloneNode(true));
+        toolboxCellClassSelector[k].style.margin = '5px';
+        // toolboxCellClassSelector[k].addEventListener('mouseup', killSelectionAnimation); //DEPRECATED
+        toolboxCellClassSelector[k].addEventListener('mouseup', highlightChosenColor);
+        toolboxCellClassSelector[k].addEventListener('mouseup', pickColor);
+    }
+    toolboxCellClassSelector[0].style.backgroundColor = '#f25c5a'; //red
+    toolboxCellClassSelector[1].style.backgroundColor = '#f28f5a'; //orange
+    toolboxCellClassSelector[2].style.backgroundColor = '#f2e55a'; //yellow
+    toolboxCellClassSelector[3].style.backgroundColor = '#5af2a6'; //green
+    toolboxCellClassSelector[4].style.backgroundColor = '#5ad6f2'; //blue
+    toolboxCellClassSelector[5].style.backgroundColor = '#ffffff'; //white
+    toolboxCellClassSelector[5].style.border = '1px solid #a6a6a6';
+    toolboxCellClassSelector[5].style.width = toolboxCellWidth - '2' + 'px';
+    toolboxCellClassSelector[5].style.height = toolboxCellHeight - '2' + 'px';
+    toolboxCellClassSelector[5].setAttribute('id','needsBorderID');
+    toolboxCellClassSelector[6].style.backgroundColor = '#595959'; //black
+    toolboxCellClassSelector[7].style.background = 'linear-gradient(to bottom right, #ffffff, '+ gradientColor + ')';
+    toolboxCellClassSelector[7].addEventListener('mouseup', gradientHandling);
+    toolboxCellClassSelector[7].style.opacity = '0.5';
+}
+
+function gradientHandling() {
+    if (gradient == 'false'){
+        gradient = 'true';
+        toolboxCellClassSelector[7].style.background = 'linear-gradient(to bottom right, #ffffff, '+ gradientColor + ')';
+    } else if (gradient == 'true') {
+        gradient = 'false';
+        toolboxCellClassSelector[7].style.background = 'linear-gradient(to bottom right, ' + gradientColor + ', '+ gradientColor + ')';
+    }
+}
+
+function pickColor() {
+    if (this.style.opacity != 0.5) {
+        colorPicker = this.style.backgroundColor;
+    }
+    gradientColor = colorPicker;
+    if (gradient == 'true') {
+        toolboxCellClassSelector[7].style.background = 'linear-gradient(to bottom right, #ffffff, '+ gradientColor + ')';
+    } else if (gradient == 'false') {
+        toolboxCellClassSelector[7].style.background = 'linear-gradient(to bottom right, ' + gradientColor + ', '+ gradientColor + ')';
+    }
+
+}
+
+function highlightChosenColor() {
+    highlightedColor = toolboxCellClassSelector[7];
+
+    highlightedColor.style.width = toolboxCellWidth - '8' + 'px';
+    highlightedColor.style.height = toolboxCellHeight - '8' + 'px';
+    highlightedColor.style.animationName = 'selectedColor';
+    highlightedColor.style.animationDuration = '0.5' + 's';
+    highlightedColor.style.animationDirection = 'alternate-reverse';
+    highlightedColor.style.animationIterationCount = 'infinite';
+
+
+}
+
+    //DEPRECATED
+// function killSelectionAnimation() {
+//     if (highlightedColor.style.animationIterationCount == 'infinite' && highlightedColor.id == 'needsBorderID') {
+//         highlightedColor.style.animationIterationCount = '0';
+//         highlightedColor.style.width = toolboxCellWidth - '2' + 'px';
+//         highlightedColor.style.height = toolboxCellHeight - '2' + 'px';
+//     } else if (highlightedColor.style.animationIterationCount == 'infinite') {
+//         highlightedColor.style.animationIterationCount = '0';
+//         highlightedColor.style.width = toolboxCellWidth + 'px';
+//         highlightedColor.style.height = toolboxCellHeight + 'px';
+//     }
+// }
+
+function reset() {
+    resetButtonToggled = true;
+    currentOpacity = 0;
+    getCellAmount();
+    adjustChildCells();
+    removeChildren();
+    addChildren();
+
+}
+
+let resetPressed = buttonReset.addEventListener("click", reset);
+
+
+
+
+</script>
+
+</html>
